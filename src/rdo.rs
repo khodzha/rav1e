@@ -28,6 +28,10 @@ use crate::partition::*;
 use crate::partition::RefType::*;
 use crate::frame::*;
 use crate::predict::{RAV1E_INTRA_MODES, RAV1E_INTER_MODES_MINIMAL, RAV1E_INTER_COMPOUND_MODES, PredictionMode};
+use crate::quantize::ac_q;
+use crate::rate::bexp64;
+use crate::rate::q57;
+use crate::rate::QSCALE;
 use crate::Tune;
 use crate::write_tx_blocks;
 use crate::write_tx_tree;
@@ -1439,6 +1443,15 @@ pub fn rdo_loop_decision<T: Pixel>(tile_sbo: SuperBlockOffset, fi: &FrameInvaria
     }
   }
 
+  /*
+  if best_index >= 0 {
+      let bit_depth = fi.sequence.bit_depth;
+      let q = ac_q(fi.base_q_idx, 0, bit_depth) as i32;
+      let log_target_q = fi.log_target_q; // (fi.lambda * (6.0 / ::std::f64::consts::LN_2)).ln() / Q57_SQUARE_EXP_SCALE;
+      let quantizer = bexp64(log_target_q as i64 + q57(QSCALE));
+      eprintln!("cdef_damping:{} cdef_ystrengths[best_index]:{} cdef_uvstrengths[best_index]:{} q:{} baseqidx:{} log_target_q:{} quantizer:{} fi.log_target_q:{}", fi.cdef_damping, fi.cdef_y_strengths[best_index as usize], fi.cdef_uv_strengths[best_index as usize], q, fi.base_q_idx, log_target_q, quantizer, fi.log_target_q);
+  }
+  */
   if cw.bc.cdef_coded {
     cw.bc.blocks.set_cdef(tile_sbo, best_index as u8);
   }
