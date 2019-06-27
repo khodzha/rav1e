@@ -765,7 +765,7 @@ impl<T: Pixel> FrameInvariants<T> {
   pub fn set_quantizers(&mut self, qps: &QuantizerParameters) {
     self.base_q_idx = qps.ac_qi[0];
     if self.frame_type != FrameType::KEY {
-      self.cdef_bits = 0;
+      self.cdef_bits = 3 - ((self.base_q_idx.max(128) - 128) >> 5);
     } else {
       self.cdef_bits = 0;
     }
@@ -784,7 +784,7 @@ impl<T: Pixel> FrameInvariants<T> {
     self.me_lambda = self.lambda.sqrt();
  
     let q = bexp64(self.log_target_q as i64 + q57(QSCALE)) as f32;
-    if !self.intra_only {
+    if false && !self.intra_only {
         let predicted_y_f1 = clamp((-q * q * 0.00000235939456_f32 + q * 0.0068615186_f32 + 0.02709886_f32).round() as i32, 0, 15);
         let predicted_y_f2 = clamp((-q * q * 0.000000576297339_f32 + q * 0.00139933452_f32 + 0.03831067_f32).round() as i32, 0, 3);
         let predicted_uv_f1 = clamp((-q * q * 0.000000709506878_f32 + q * 0.00346288458_f32 + 0.00887099_f32).round() as i32, 0, 15);
